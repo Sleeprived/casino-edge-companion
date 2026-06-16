@@ -1,0 +1,61 @@
+/* Three themes via [data-theme] on <html>. Neon is the default (also :root so a
+   missing/invalid stored theme still paints). Same variable system as
+   squinks-arcade so the theme-switcher pattern is identical. */
+
+:root,
+[data-theme="neon"] {
+  --bg: #0d0b1e;
+  --bg2: #171433;
+  --panel: #1d1840;
+  --text: #ede9ff;
+  --muted: #a39ccc;
+  --accent: #ff2e97;
+  --accent2: #2de2e6;
+  --border: #3a2f6b;
+  --btn-bg: #2a2350;
+  --btn-text: #ffffff;
+  --danger: #ff4d6d;
+  --good: #39d98a;
+  --warn: #ffb454;
+  --tile-bg: #1d1840;
+  --shadow: 0 0 18px rgba(255, 46, 151, 0.25);
+  --theme-color: #0d0b1e;
+}
+
+[data-theme="dark"] {
+  --bg: #0e1512;
+  --bg2: #14201b;
+  --panel: #182721;
+  --text: #e8efe9;
+  --muted: #9bb0a5;
+  --accent: #2bb673;
+  --accent2: #d4af37;
+  --border: #284034;
+  --btn-bg: #1d322a;
+  --btn-text: #ffffff;
+  --danger: #e5534b;
+  --good: #2bb673;
+  --warn: #e0a23c;
+  --tile-bg: #182721;
+  --shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --theme-color: #0e1512;
+}
+
+[data-theme="playful"] {
+  --bg: #fff7ef;
+  --bg2: #ffe9d6;
+  --panel: #ffffff;
+  --text: #2c2436;
+  --muted: #7c7187;
+  --accent: #d6336c;
+  --accent2: #1c7ed6;
+  --border: #f0d3c0;
+  --btn-bg: #ffd23f;
+  --btn-text: #2c2436;
+  --danger: #e03131;
+  --good: #2f9e44;
+  --warn: #e8893c;
+  --tile-bg: #ffffff;
+  --shadow: 0 6px 16px rgba(214, 51, 108, 0.18);
+  --theme-color: #fff7ef;
+}

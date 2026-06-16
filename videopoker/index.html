@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Video Poker — Casino Edge Companion</title>
+  <script>
+    try {
+      var t = localStorage.getItem("casinoedge.theme");
+      document.documentElement.dataset.theme = ["neon", "dark", "playful"].indexOf(t) >= 0 ? t : "neon";
+    } catch (e) { document.documentElement.dataset.theme = "neon"; }
+  </script>
+  <link rel="stylesheet" href="../css/themes.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <meta name="theme-color" content="#0d0b1e" />
+  <link rel="icon" href="../icons/icon-192.png" />
+</head>
+<body>
+  <div class="topbar">
+    <a class="back" href="../index.html" aria-label="Back to hub">‹</a>
+    <h1><span class="brand">Video Poker</span></h1>
+    <div class="theme-switch">
+      <label for="theme" class="hint">Theme</label>
+      <select id="theme" class="btn"></select>
+    </div>
+  </div>
+  <main>
+    <div class="tool-wrap">
+      <div class="panel">
+        <div class="row">
+          <label class="hint">Paytable</label>
+          <select id="paytable" class="btn"></select>
+        </div>
+        <p class="hint" id="paynote"></p>
+      </div>
+
+      <div class="panel">
+        <div class="hint">Tap cards to HOLD, then score your hold against the math.</div>
+        <div class="cardrow" id="hand"></div>
+        <div class="controls">
+          <button class="btn accent" id="deal">Deal new hand</button>
+          <button class="btn" id="score">Score my hold</button>
+          <button class="btn ghost" id="optimal">Show optimal</button>
+        </div>
+        <div class="msg" id="status"></div>
+        <div class="msg" id="result"></div>
+        <div class="hint" id="evnote"></div>
+      </div>
+
+      <div class="panel">
+        <button class="btn ghost" id="togglecustom">Set a specific hand</button>
+        <div id="custom" class="hidden" style="margin-top:0.6rem">
+          <div class="row" id="pickers"></div>
+          <div class="row">
+            <button class="btn" id="loadcustom">Load this hand</button>
+            <span class="hint" id="customerr"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="scorebar">
+          <span>Accuracy <span id="acc">0%</span></span>
+          <span class="muted">Streak <span id="streak">0</span></span>
+          <span class="muted">Best <span id="best">0</span></span>
+          <span class="muted">Hands <span id="hands">0</span></span>
+        </div>
+        <div class="row"><button class="btn ghost" id="reset">Reset this paytable's score</button></div>
+      </div>
+    </div>
+  </main>
+  <script type="module" src="../js/ui/videopoker.js"></script>
+</body>
+</html>

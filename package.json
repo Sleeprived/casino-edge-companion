@@ -1,0 +1,10 @@
+{
+  "name": "casino-edge-companion",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static PWA: casino strategy trainers + odds/house-edge references. Node is dev-only for tests; the shipped site has no runtime dependencies.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
