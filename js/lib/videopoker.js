@@ -60,54 +60,49 @@ export const PAYTABLES = {
   },
 };
 
-const HIGH = { J: true, Q: true, K: true, A: true };
+/* Rank index A=0,2=1,...,T=9,J=10,Q=11,K=12; suit index for fast counting.
+   The classifier uses reused scratch arrays and integer counts instead of
+   Object.entries/sort allocations, and takes the hand as two parts so the EV
+   enumerator never allocates a concatenated array (audit-1 M1). The worker and
+   tests are single-threaded and call sequentially, so the scratch is safe. */
+const RIDX = {};
+RANKS.forEach((r, i) => (RIDX[r] = i));
+const SIDX = { s: 0, h: 1, d: 2, c: 3 };
+const _rc = new Array(13);
+const _sc = new Array(4);
+const EMPTY = [];
 
-/* Straight value with ace high (A=14); the wheel A-2-3-4-5 is handled below. */
-function straightValue(r) {
-  if (r === "A") return 14;
-  if (r === "K") return 13;
-  if (r === "Q") return 12;
-  if (r === "J") return 11;
-  if (r === "T") return 10;
-  return Number(r);
-}
+function classify(a, b) {
+  _rc.fill(0);
+  _sc.fill(0);
+  for (const c of a) { _rc[RIDX[c.r]]++; _sc[SIDX[c.s]]++; }
+  for (const c of b) { _rc[RIDX[c.r]]++; _sc[SIDX[c.s]]++; }
 
-function isStraight(ranks) {
-  const vals = ranks.map(straightValue).sort((a, b) => a - b);
-  const uniq = [...new Set(vals)];
-  if (uniq.length !== 5) return false;
-  if (uniq[4] - uniq[0] === 4) return true;
-  // wheel: A,2,3,4,5 -> values 14,2,3,4,5
-  return uniq.join(",") === "2,3,4,5,14";
+  const flush = _sc[0] === 5 || _sc[1] === 5 || _sc[2] === 5 || _sc[3] === 5;
+  let distinct = 0, run = 0, maxRun = 0, four = false, three = false, pairs = 0, pairIdx = -1;
+  for (let i = 0; i < 13; i++) {
+    const n = _rc[i];
+    if (n) { distinct++; run++; if (run > maxRun) maxRun = run; } else run = 0;
+    if (n === 4) four = true;
+    else if (n === 3) three = true;
+    else if (n === 2) { pairs++; pairIdx = i; }
+  }
+  const broadway = _rc[9] && _rc[10] && _rc[11] && _rc[12] && _rc[0]; // T J Q K A
+  const straight = distinct === 5 && (maxRun === 5 || broadway);
+
+  if (flush && straight) return broadway ? "ROYAL_FLUSH" : "STRAIGHT_FLUSH";
+  if (four) return "FOUR_KIND";
+  if (three && pairs === 1) return "FULL_HOUSE";
+  if (flush) return "FLUSH";
+  if (straight) return "STRAIGHT";
+  if (three) return "THREE_KIND";
+  if (pairs === 2) return "TWO_PAIR";
+  if (pairs === 1) return pairIdx === 0 || pairIdx >= 10 ? "JACKS_OR_BETTER" : "NOTHING"; // A,J,Q,K pair
+  return "NOTHING";
 }
 
 export function evaluate(cards) {
-  const ranks = cards.map((c) => c.r);
-  const suits = cards.map((c) => c.s);
-  const flush = suits.every((s) => s === suits[0]);
-  const straight = isStraight(ranks);
-
-  const counts = {};
-  for (const r of ranks) counts[r] = (counts[r] || 0) + 1;
-  const groups = Object.entries(counts).sort((a, b) => b[1] - a[1]); // [rank, n] desc
-  const shape = groups.map((g) => g[1]).sort((a, b) => b - a); // e.g. [3,2]
-
-  if (flush && straight) {
-    const vals = ranks.map(straightValue).sort((a, b) => a - b);
-    const royal = vals.join(",") === "10,11,12,13,14";
-    return royal ? "ROYAL_FLUSH" : "STRAIGHT_FLUSH";
-  }
-  if (shape[0] === 4) return "FOUR_KIND";
-  if (shape[0] === 3 && shape[1] === 2) return "FULL_HOUSE";
-  if (flush) return "FLUSH";
-  if (straight) return "STRAIGHT";
-  if (shape[0] === 3) return "THREE_KIND";
-  if (shape[0] === 2 && shape[1] === 2) return "TWO_PAIR";
-  if (shape[0] === 2) {
-    const pairRank = groups.find((g) => g[1] === 2)[0];
-    return HIGH[pairRank] ? "JACKS_OR_BETTER" : "NOTHING";
-  }
-  return "NOTHING";
+  return classify(cards, EMPTY);
 }
 
 export function payout(category, paytableId) {
@@ -137,19 +132,21 @@ function remainingDeck(dealt) {
   return makeDeck().filter((c) => !used.has(cardId(c)));
 }
 
-/* Expected value (coins/coin) of keeping the cards marked true in `holdMask`. */
-export function evHold(cards, holdMask, paytableId) {
+/* Expected value (coins/coin) of keeping the cards marked true in `holdMask`.
+   `pool` (the 47 remaining cards) may be passed in so a full solve builds it
+   once instead of 32 times (audit-1 M1). */
+export function evHold(cards, holdMask, paytableId, pool) {
   const held = cards.filter((_, i) => holdMask[i]);
   const drawCount = 5 - held.length;
-  const pool = remainingDeck(cards);
   const pay = PAYTABLES[paytableId].pay;
 
-  if (drawCount === 0) return pay[evaluate(held)];
+  if (drawCount === 0) return pay[classify(held, EMPTY)];
 
+  const deck = pool || remainingDeck(cards);
   let total = 0;
   let n = 0;
-  for (const draw of combinations(pool, drawCount)) {
-    total += pay[evaluate(held.concat(draw))];
+  for (const draw of combinations(deck, drawCount)) {
+    total += pay[classify(held, draw)];
     n++;
   }
   return total / n;
@@ -159,10 +156,11 @@ export function evHold(cards, holdMask, paytableId) {
    and the held cards. The browser runs this in a Web Worker; tests call it
    directly on a small number of hands. */
 export function bestHold(cards, paytableId) {
+  const pool = remainingDeck(cards); // built once, reused across all 32 holds
   let best = null;
   for (let m = 0; m < 32; m++) {
     const mask = [0, 1, 2, 3, 4].map((i) => Boolean(m & (1 << i)));
-    const ev = evHold(cards, mask, paytableId);
+    const ev = evHold(cards, mask, paytableId, pool);
     if (best === null || ev > best.ev) {
       best = { mask, ev, held: cards.filter((_, i) => mask[i]) };
     }

@@ -18,6 +18,7 @@ let stats = loadStats();
 let cards = deal(5);
 let hold = [false, false, false, false, false];
 let busy = false;
+let revealed = false; // true after "Show optimal" so the next Score is not counted
 let lastBest = null;
 
 const worker = new Worker(new URL("./videopoker-worker.js", import.meta.url), { type: "module" });
@@ -52,6 +53,7 @@ $("hand").addEventListener("click", (e) => {
   const i = [...$("hand").children].indexOf(el);
   if (i < 0) return;
   hold[i] = !hold[i];
+  revealed = false; // user is making their own choice again
   clearResult();
   render();
 });
@@ -67,6 +69,7 @@ function newDeal() {
   cards = deal(5);
   hold = [false, false, false, false, false];
   busy = false;
+  revealed = false;
   $("status").textContent = "";
   clearResult();
   render();
@@ -86,6 +89,11 @@ function highlightOptimal(best) {
 
 function score() {
   if (busy) return;
+  if (revealed) {
+    $("result").textContent = "This hand was revealed — deal a new hand to be scored.";
+    $("result").className = "msg";
+    return;
+  }
   setBusy(true, "Calculating best play…");
   const userMask = [...hold];
   worker.onmessage = (e) => {
@@ -119,6 +127,7 @@ function showOptimal() {
     $("evnote").innerHTML = `Keep <strong>${best.held.map((c) => rankLabel(c.r) + SUIT_SYMBOL[c.s]).join(" ") || "nothing"}</strong>.`;
     highlightOptimal(best);
     hold = cards.map((c) => best.held.some((h) => h.r === c.r && h.s === c.s));
+    revealed = true; // a following Score must not count this as a free correct
   };
   worker.postMessage({ cards, paytable });
 }
@@ -171,6 +180,7 @@ $("loadcustom").addEventListener("click", () => {
   $("customerr").textContent = "";
   cards = picked;
   hold = [false, false, false, false, false];
+  revealed = false;
   clearResult();
   $("status").textContent = "";
   render();

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-15 — fixes from casino-edge-companion-build-audit.md
+### Fixed
+- Video poker now solves a hand in about 0.65s instead of ~4s (rewrote the hand evaluator to integer rank-counts and build the draw deck once per solve), comfortably under the responsiveness target.
+- "Show optimal" in video poker no longer lets a follow-up "Score my hold" count as a free correct answer — a revealed hand is not scored until you deal a new one.
+- The craps sucker-bet quiz buttons are now disabled during the answer feedback, so a fast double-tap can't record two attempts on the same bet.
+- Added a `<noscript>` responsible-play reminder to every page so the disclaimer is present even if JavaScript fails.
+- Added the Apple touch icon to the service worker's offline precache list.
+### Changed
+- No change to any game's odds, strategy answers, or stored data — fixes were performance, fairness of self-scoring, and offline robustness only.
+
 ## 2026-06-15 — casino-edge-companion.md (initial build)
 ### Added
 - Static, installable, offline PWA (vanilla JS, no build step) scaffolded from squinks-arcade, with a three-theme switcher (Neon / Felt Dark / Daylight) persisted in localStorage.

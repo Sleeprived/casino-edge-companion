@@ -55,10 +55,14 @@ function nextQuestion() {
   $("quiz-bet").textContent = `${current.name} — pays ${current.payoutText}`;
   $("quiz-feedback").textContent = "";
   $("quiz-feedback").className = "msg";
+  $("smart").disabled = false;
+  $("sucker").disabled = false;
 }
 
 function answer(saidSucker) {
-  if (!current) return;
+  if (!current || $("smart").disabled) return;
+  $("smart").disabled = true;
+  $("sucker").disabled = true;
   const correct = saidSucker === current.trap;
   stats = record(stats, correct);
   setJSON(KEY, stats);
