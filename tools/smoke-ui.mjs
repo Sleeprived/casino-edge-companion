@@ -57,6 +57,7 @@ const modules = [
   "../js/ui/roulette.js",
   "../js/ui/baccarat.js",
   "../js/ui/cheatsheet.js",
+  "../js/ui/howto.js",
 ];
 
 let failed = 0;

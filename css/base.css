@@ -176,3 +176,8 @@ tr.best td { color: var(--good); }
   line-height: 1.45;
 }
 .disclaimer strong { color: var(--text); }
+
+/* "How to play at the casino" panel. */
+.howto h3 { margin: 0.9rem 0 0.3rem; font-size: 1rem; color: var(--accent2); }
+.howto ol, .howto ul { margin: 0.3rem 0; padding-left: 1.25rem; line-height: 1.5; }
+.howto li { margin: 0.35rem 0; }

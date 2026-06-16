@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-15 — "How to play at the casino" guides (freehand extension)
+### Added
+- A collapsible "How to play at the casino" panel at the top of every game page (blackjack, video poker, craps, roulette, baccarat): a plain-English intro that's always visible, plus a step-by-step "at the table" walkthrough and etiquette/tips behind a toggle — written for someone who has never sat down at that game.
+- New `howto-content.js` data module with the per-game guides, and unit tests covering it (40 tests total).
+### Changed
+- Service worker cache bumped to v2 so already-installed users receive the new guides on their next load.
+
 ## 2026-06-15 — fixes from casino-edge-companion-build-audit.md
 ### Fixed
 - Video poker now solves a hand in about 0.65s instead of ~4s (rewrote the hand evaluator to integer rank-counts and build the draw deck once per solve), comfortably under the responsiveness target.

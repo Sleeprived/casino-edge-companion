@@ -2,7 +2,7 @@
    CACHE_VERSION on every deploy; old caches are deleted on activate and the new
    worker claims clients, so a redeploy reaches installed users on next load. */
 
-const CACHE_VERSION = "casino-edge-v1";
+const CACHE_VERSION = "casino-edge-v2";
 
 const SHELL = [
   "./",
@@ -24,7 +24,9 @@ const SHELL = [
   "./js/lib/houseedge.js",
   "./js/lib/videopoker.js",
   "./js/lib/blackjack-strategy.js",
+  "./js/lib/howto-content.js",
   "./js/ui/blackjack.js",
+  "./js/ui/howto.js",
   "./js/ui/videopoker.js",
   "./js/ui/videopoker-worker.js",
   "./js/ui/craps.js",
