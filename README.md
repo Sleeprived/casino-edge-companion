@@ -1,5 +1,11 @@
 # Casino Edge Companion
 
+## ▶ Use it live — just open this link
+
+**https://sleeprived.github.io/casino-edge-companion/**
+
+Works on any phone, tablet, or computer. Nothing to install, no account, no server.
+
 A phone-friendly, **offline** web app that teaches you the *mathematically correct*
 play for casino table games and shows you the real odds — so you play smarter and
 lose slower. It does **not** claim to beat the house; every game here still favors
